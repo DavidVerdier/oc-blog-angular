@@ -3,11 +3,12 @@
   <div class="row">
     <div class="col">
       <ul class="list-group">
-        <app-post-list-item *ngFor="let post of allPosts"
+        <app-post-list-item *ngFor="let post of allPosts; let i = index;"
                             [postTitle]="post.title"
                             [postContent]="post.content"
                             [postLoveIts]="post.loveIts"
-                            [postCreated]="post.created_at"></app-post-list-item>
+                            [postCreated]="post.created_at"
+                            [indexOfPost]="i"></app-post-list-item>
       </ul>
     </div>
   </div>
