@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Post } from '../models/Post.model';
 import { Subject } from 'rxjs';
+import * as firebase from 'firebase';
 
 @Injectable({
   providedIn: 'root'
@@ -9,26 +10,7 @@ import { Subject } from 'rxjs';
 export class PostsService {
 
   postSubject = new Subject<Post[]>();
-  posts: Post[] = [
-    {
-      title:      'First',
-      content:    'In tincidunt nisl eget ligula.',
-      loveIts:    1,
-      created_at: new Date()
-    },
-    {
-      title:      'Second',
-      content:    'In tincidunt nisl eget ligula.',
-      loveIts:    0,
-      created_at: new Date()
-    },
-    {
-      title:      'Third',
-      content:    'In tincidunt nisl eget ligula.',
-      loveIts:    -1,
-      created_at: new Date()
-    }
-  ];
+  posts: Post[] = [];
 
   constructor() { }
 
@@ -36,21 +18,39 @@ export class PostsService {
     this.postSubject.next(this.posts);
   }
 
+  savePosts() {
+    firebase.database().ref('/posts').set(this.posts);
+  }
+
+  getPosts() {
+    firebase.database().ref('/posts')
+      .on('value', (data) => {
+        this.posts = data.val() || [];
+        this.emitPosts();
+      });
+  }
+
   addLikes(index: number) {
     this.posts[index].loveIts++;
+    this.savePosts();
+    this.emitPosts();
   }
 
   addDislike(index: number) {
     this.posts[index].loveIts--;
+    this.savePosts();
+    this.emitPosts();
   }
 
   createNewPost(newPost: Post) {
     this.posts.push(newPost);
+    this.savePosts();
     this.emitPosts();
   }
 
   removePost(index: number) {
     this.posts.splice(index, 1);
+    this.savePosts();
     this.emitPosts();
   }
 }
